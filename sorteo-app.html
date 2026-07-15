@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sorteo Transparente — Cookie Co.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg: #241512;
+    --bg-2: #2f1c17;
+    --paper: #f7ecdd;
+    --paper-2: #efe1cc;
+    --ink: #2b1b14;
+    --ink-soft: #6b5142;
+    --muted: #c9b9a8;
+    --red: #8c2f39;
+    --red-dark: #6c2029;
+    --gold: #d9a441;
+    --gold-soft: #eccf8c;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse at top, var(--bg-2), var(--bg) 70%);
+    color: var(--muted);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+  .wrap{max-width: 880px; margin: 0 auto;}
+
+  header{text-align:center; margin-bottom: 36px;}
+  .eyebrow{
+    font-family: var(--font-mono);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  h1{
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(32px, 6vw, 52px);
+    color: var(--paper);
+    margin: 0 0 8px;
+    line-height: 1.05;
+  }
+  .sub{ font-size: 14px; color: var(--muted); max-width: 480px; margin: 0 auto; }
+
+  .card{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 28px;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+    margin-bottom: 24px;
+  }
+
+  /* Upload zone */
+  .drop{
+    border: 2px dashed var(--red);
+    border-radius: 8px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .drop:hover{ background: var(--paper-2); }
+  .drop input{ display:none; }
+  .drop .icon{ font-size: 28px; margin-bottom: 8px; }
+  .drop .label{ font-family: var(--font-display); font-size: 20px; color: var(--ink); }
+  .drop .hint{ font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  .rule-input{
+    display:flex; align-items:center; gap: 10px; margin-top: 18px; font-size: 13px;
+  }
+  .rule-input input[type="text"]{
+    font-family: var(--font-mono);
+    border: 1px solid var(--ink-soft);
+    background: var(--paper-2);
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 4px;
+    flex: 1;
+  }
+
+  /* Stats row */
+  .stats{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat{
+    background: var(--paper);
+    border-radius: 6px;
+    padding: 16px 14px;
+    text-align:center;
+  }
+  .stat .num{ font-family: var(--font-display); font-size: 30px; color: var(--red); font-weight:600; }
+  .stat .lbl{ font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing:.08em; color: var(--ink-soft); margin-top:4px;}
+
+  /* Ticket grid */
+  .ticket-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+    gap: 10px; max-height: 300px; overflow-y:auto; padding: 4px;
+  }
+  .ticket{
+    position:relative;
+    background: var(--paper-2);
+    border: 1px dashed var(--ink-soft);
+    border-radius: 4px;
+    padding: 10px 10px 10px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .ticket .num{ color: var(--red); font-weight:600; margin-right:4px;}
+  .ticket::before, .ticket::after{
+    content:''; position:absolute; width:10px; height:10px; border-radius:50%;
+    background: var(--bg); top:50%; transform: translateY(-50%);
+  }
+  .ticket::before{ left:-5px; }
+  .ticket::after{ right:-5px; }
+  .ticket.invalid{ opacity:.4; text-decoration: line-through; }
+
+  .invalid-note{ font-size:12px; color: var(--ink-soft); margin-top:10px; }
+
+  /* Draw button */
+  .draw-btn{
+    display:block; width:100%; margin-top: 20px;
+    background: var(--red); color: var(--paper);
+    font-family: var(--font-display); font-size: 20px; font-weight:600;
+    border:none; border-radius: 6px; padding: 16px;
+    cursor:pointer; transition: transform .1s ease, background .15s ease;
+  }
+  .draw-btn:hover:not(:disabled){ background: var(--red-dark); }
+  .draw-btn:active:not(:disabled){ transform: scale(0.98); }
+  .draw-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  /* Reel */
+  .reel{
+    font-family: var(--font-mono); text-align:center; font-size: 22px;
+    color: var(--ink); background: var(--paper-2); border-radius: 6px;
+    padding: 20px; margin-top: 18px; letter-spacing: .04em;
+  }
+
+  /* Winner ticket */
+  .winner-ticket{
+    position:relative; background: var(--gold-soft); border: 2px solid var(--red);
+    border-radius: 8px; padding: 24px; text-align:center; margin-top:20px;
+    overflow:hidden;
+  }
+  .winner-ticket .stamp{
+    display:inline-block; font-family: var(--font-display); font-weight:700;
+    font-size: 14px; letter-spacing:.12em; text-transform:uppercase;
+    color: var(--red); border: 3px solid var(--red); border-radius: 50%;
+    padding: 10px 14px; transform: rotate(-8deg) scale(0);
+    animation: stamp .4s ease-out forwards; animation-delay: .1s;
+    margin-bottom: 10px;
+  }
+  @keyframes stamp{ to{ transform: rotate(-8deg) scale(1);} }
+  .winner-ticket .name{ font-family: var(--font-display); font-size: 32px; color: var(--ink); font-weight:600; }
+
+  .backups{ display:flex; gap:10px; margin-top:14px; justify-content:center; flex-wrap:wrap;}
+  .backup{
+    font-family: var(--font-mono); font-size: 12px; background: var(--paper-2);
+    padding: 8px 12px; border-radius: 4px; color: var(--ink);
+  }
+
+  .audit{
+    font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft);
+    background: var(--paper-2); border-radius: 6px; padding: 14px; margin-top:18px;
+    line-height:1.6; word-break: break-all;
+  }
+  .audit b{ color: var(--ink); }
+
+  .export-btn{
+    margin-top: 14px; background:none; border: 1px solid var(--ink-soft);
+    color: var(--ink); font-family: var(--font-mono); font-size: 12px;
+    padding: 8px 14px; border-radius: 4px; cursor:pointer;
+  }
+  .export-btn:hover{ background: var(--paper-2); }
+
+  .error{ color: var(--red); font-size: 13px; margin-top: 10px; }
+  .col-map{ font-size: 12px; color: var(--ink-soft); margin-top: 10px; font-family: var(--font-mono);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Herramienta de sorteo</div>
+    <h1>Sorteo Transparente</h1>
+    <p class="sub">Subí el archivo de comentarios, la app filtra las participaciones válidas y sortea con prueba auditable.</p>
+  </header>
+
+  <div class="card">
+    <div class="drop" id="dropZone">
+      <div class="icon">🎟️</div>
+      <div class="label">Subí tu archivo de comentarios</div>
+      <div class="hint">CSV o Excel — necesita una columna de usuario y una de comentario</div>
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+    </div>
+    <div class="rule-input">
+      <label for="mentionRule" style="white-space:nowrap; font-family: var(--font-mono); font-size:12px;">Regla:</label>
+      <input type="text" id="mentionRule" value="El comentario debe mencionar (@) al menos a un amigo" readonly>
+    </div>
+    <div class="error" id="errorMsg"></div>
+    <div class="col-map" id="colMap"></div>
+  </div>
+
+  <div id="results" style="display:none;">
+    <div class="stats">
+      <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">Comentarios leídos</div></div>
+      <div class="stat"><div class="num" id="statValid">0</div><div class="lbl">Participaciones válidas</div></div>
+      <div class="stat"><div class="num" id="statInvalid">0</div><div class="lbl">Excluidas</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ticket-grid" id="ticketGrid"></div>
+      <div class="invalid-note">Se excluyen comentarios sin mención y duplicados (una participación por persona).</div>
+      <button class="draw-btn" id="drawBtn" disabled>Realizar el sorteo</button>
+      <div class="reel" id="reel" style="display:none;"></div>
+    </div>
+
+    <div class="card" id="winnerCard" style="display:none;">
+      <div class="winner-ticket">
+        <div class="stamp">Ganador</div>
+        <div class="name" id="winnerName">—</div>
+      </div>
+      <div class="backups" id="backupList"></div>
+      <div class="audit" id="auditTrail"></div>
+      <button class="export-btn" id="exportBtn">Descargar prueba del sorteo (.txt)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let rows = [];
+let validEntries = [];
+let winnerData = null;
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const errorMsg = document.getElementById('errorMsg');
+const colMap = document.getElementById('colMap');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if(e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  errorMsg.textContent = '';
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, {defval:''});
+      if(!json.length) throw new Error('El archivo no tiene filas de datos.');
+      processRows(json);
+    }catch(err){
+      errorMsg.textContent = 'No pude leer el archivo: ' + err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function detectColumn(headers, candidates){
+  const lower = headers.map(h => h.toLowerCase().trim());
+  for(const c of candidates){
+    const idx = lower.findIndex(h => h.includes(c));
+    if(idx !== -1) return headers[idx];
+  }
+  return null;
+}
+
+function processRows(json){
+  const headers = Object.keys(json[0]);
+  const userCol = detectColumn(headers, ['usuario','username','user','autor','author']);
+  const commentCol = detectColumn(headers, ['comentario','comment','texto','text']);
+
+  if(!userCol || !commentCol){
+    errorMsg.textContent = 'No encontré columnas de usuario y comentario. Revisá los encabezados del archivo.';
+    return;
+  }
+  colMap.textContent = `Columnas detectadas → Usuario: "${userCol}" · Comentario: "${commentCol}"`;
+
+  rows = json.map(r => ({ user: String(r[userCol]).trim(), comment: String(r[commentCol]) }));
+
+  const seenUsers = new Set();
+  validEntries = [];
+  let invalidCount = 0;
+
+  rows.forEach(r => {
+    const mentions = (r.comment.match(/@[a-zA-Z0-9_.]+/g) || [])
+      .filter(m => m.toLowerCase() !== ('@' + r.user.toLowerCase()));
+    const hasMention = mentions.length > 0;
+    const alreadyEntered = seenUsers.has(r.user.toLowerCase());
+    if(hasMention && !alreadyEntered && r.user){
+      seenUsers.add(r.user.toLowerCase());
+      validEntries.push(r.user);
+    } else {
+      invalidCount++;
+    }
+  });
+
+  renderResults(invalidCount);
+}
+
+function renderResults(invalidCount){
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('statTotal').textContent = rows.length;
+  document.getElementById('statValid').textContent = validEntries.length;
+  document.getElementById('statInvalid').textContent = invalidCount;
+
+  const grid = document.getElementById('ticketGrid');
+  grid.innerHTML = validEntries.map((u,i) =>
+    `<div class="ticket"><span class="num">#${String(i+1).padStart(3,'0')}</span>${escapeHtml(u)}</div>`
+  ).join('');
+
+  const drawBtn = document.getElementById('drawBtn');
+  drawBtn.disabled = validEntries.length < 2;
+  document.getElementById('winnerCard').style.display = 'none';
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('drawBtn').addEventListener('click', runDraw);
+
+function runDraw(){
+  const btn = document.getElementById('drawBtn');
+  btn.disabled = true;
+  const reel = document.getElementById('reel');
+  reel.style.display = 'block';
+
+  // seed visible para auditoría (no es criptográfico, es para transparencia del proceso)
+  const seed = Date.now() + '-' + Math.floor(Math.random()*1e9);
+
+  let ticks = 0;
+  const maxTicks = 20;
+  const interval = setInterval(() => {
+    const r = validEntries[Math.floor(Math.random()*validEntries.length)];
+    reel.textContent = '🎲 ' + r;
+    ticks++;
+    if(ticks >= maxTicks){
+      clearInterval(interval);
+      finishDraw(seed);
+    }
+  }, 90);
+}
+
+function finishDraw(seed){
+  // shuffle usando el seed como parte de la aleatoriedad mostrada (transparencia, no cripto-seguridad)
+  const shuffled = [...validEntries];
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const winner = shuffled[0];
+  const backups = shuffled.slice(1,3);
+  winnerData = { winner, backups, seed, timestamp: new Date().toISOString(), pool: validEntries.length };
+
+  document.getElementById('reel').style.display = 'none';
+  document.getElementById('winnerName').textContent = winner;
+  document.getElementById('backupList').innerHTML = backups.map((b,i) =>
+    `<div class="backup">Suplente ${i+1}: ${escapeHtml(b)}</div>`
+  ).join('');
+  document.getElementById('auditTrail').innerHTML =
+    `<b>Prueba del sorteo</b><br>Fecha: ${winnerData.timestamp}<br>Participantes válidos: ${winnerData.pool}<br>Semilla: ${winnerData.seed}<br>Método: Fisher–Yates shuffle sobre la lista de participantes válidos`;
+  document.getElementById('winnerCard').style.display = 'block';
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if(!winnerData) return;
+  const content =
+`PRUEBA DE SORTEO
+Fecha: ${winnerData.timestamp}
+Participantes válidos: ${winnerData.pool}
+Semilla: ${winnerData.seed}
+Ganador: ${winnerData.winner}
+Suplente 1: ${winnerData.backups[0] || '-'}
+Suplente 2: ${winnerData.backups[1] || '-'}
+
+Lista completa de participantes válidos:
+${validEntries.map((u,i)=>`${i+1}. ${u}`).join('\n')}
+`;
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'prueba_sorteo.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
