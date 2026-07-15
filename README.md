@@ -6,9 +6,9 @@ Aplicación web que valida participantes de sorteos de Instagram y realiza un so
 
 ## 🚀 ¿Por qué nació este proyecto?
 
-Mientras organizaba un sorteo para mi emprendimiento **Cookies NY!**, descubrí que varias aplicaciones populares solo procesaban los primeros **100 comentarios** de una publicación.
+Mientras organizaba un sorteo para mi emprendimiento **Caserito Bakery**, descubrí que varias aplicaciones populares solo procesaban los primeros **100 comentarios** de una publicación.
 
-Como el post tenía más de **250 comentarios**, una gran parte de los participantes quedaba automáticamente excluida del sorteo.
+Como el post tenía más de **150 comentarios**, una gran parte de los participantes quedaba automáticamente excluida del sorteo.
 
 En lugar de aceptar esa limitación, desarrollé una herramienta propia capaz de procesar todos los comentarios y generar un sorteo transparente.
 
@@ -84,7 +84,7 @@ Esto permite que cualquier persona pueda verificar posteriormente cómo se reali
 
 ## 📊 Caso de uso real
 
-Este proyecto fue desarrollado para realizar un sorteo de **Cookies NY!**, un emprendimiento de galletas artesanales.
+Este proyecto fue desarrollado para realizar un sorteo de **Caserito Bakery**, un emprendimiento de galletas artesanales.
 
 ### Resultados
 
