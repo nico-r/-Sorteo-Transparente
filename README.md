@@ -1,114 +1,116 @@
-# 🎟️ Sorteo Transparente
+# 🎟️ Transparent Giveaway
 
-Aplicación web que valida participantes de sorteos de Instagram y realiza un sorteo **justo, reproducible y auditable**, eliminando las limitaciones de las herramientas tradicionales.
-
----
-
-## 🚀 ¿Por qué nació este proyecto?
-
-Mientras organizaba un sorteo para mi emprendimiento **Caserito Bakery**, descubrí que varias aplicaciones populares solo procesaban los primeros **100 comentarios** de una publicación.
-
-Como el post tenía más de **150 comentarios**, una gran parte de los participantes quedaba automáticamente excluida del sorteo.
-
-En lugar de aceptar esa limitación, desarrollé una herramienta propia capaz de procesar todos los comentarios y generar un sorteo transparente.
+A web application that validates Instagram giveaway entries and performs **fair, reproducible, and auditable random draws**, overcoming the limitations of traditional giveaway tools.
 
 ---
 
-## ✨ Características
+## 🚀 Why I Built This Project
 
-- 📂 Procesa archivos **CSV** y **Excel**.
-- 🔍 Detecta automáticamente las columnas de usuario y comentario.
-- ✅ Valida reglas de participación (por ejemplo, mencionar a otro usuario).
-- 🚫 Elimina participaciones duplicadas.
-- 🎲 Realiza el sorteo utilizando el algoritmo **Fisher-Yates Shuffle**.
-- 🏆 Selecciona ganador y suplentes.
-- 📄 Genera un archivo de auditoría con toda la información del sorteo.
-- 💻 Funciona completamente en el navegador, sin necesidad de backend.
+While organizing a giveaway for my small business **Caserito Bakery**, I discovered that several popular Instagram giveaway tools only processed the **first 100 comments** of a post.
+
+Since the giveaway had more than **150 comments**, many participants were automatically excluded from the draw.
+
+Instead of accepting that limitation, I built my own tool capable of processing every comment and generating a transparent, verifiable giveaway.
 
 ---
 
-## ⚙️ ¿Cómo funciona?
+## ✨ Features
 
-### 1. Extracción de comentarios
-
-Los comentarios se obtienen a partir del HTML renderizado de una publicación de Instagram utilizando **Python** y **BeautifulSoup**, evitando las limitaciones de otras herramientas.
-
-### 2. Validación de participaciones
-
-La aplicación analiza el archivo generado y verifica automáticamente que cada participación cumpla las reglas del sorteo:
-
-- Mención válida a otro usuario.
-- Una única participación por persona.
-- Exclusión automática de registros inválidos.
-
-### 3. Sorteo
-
-Con el conjunto de participantes válidos se ejecuta un **Fisher-Yates Shuffle**, garantizando una distribución aleatoria uniforme para seleccionar al ganador y los suplentes.
-
-### 4. Auditoría
-
-Al finalizar el proceso se genera un archivo de respaldo con:
-
-- Fecha del sorteo.
-- Semilla utilizada.
-- Lista completa de participantes válidos.
-- Ganador.
-- Suplentes.
-
-Esto permite que cualquier persona pueda verificar posteriormente cómo se realizó el sorteo.
+- 📂 Supports **CSV** and **Excel** files.
+- 🔍 Automatically detects username and comment columns.
+- ✅ Validates giveaway rules (e.g., mentioning another user).
+- 🚫 Removes duplicate entries.
+- 🎲 Uses the **Fisher–Yates Shuffle** algorithm for fair random selection.
+- 🏆 Selects one winner and multiple backup winners.
+- 📄 Generates an audit report containing all giveaway information.
+- 💻 Runs entirely in the browser with **no backend required**.
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## ⚙️ How It Works
+
+### 1. Comment Extraction
+
+Comments are extracted from Instagram's rendered HTML using **Python** and **BeautifulSoup**, avoiding the limitations found in many existing giveaway tools.
+
+### 2. Entry Validation
+
+The application analyzes the generated file and automatically checks whether each entry satisfies the giveaway rules:
+
+- Valid mention of another Instagram user.
+- Only one valid entry per participant.
+- Automatic removal of invalid or duplicate entries.
+
+### 3. Random Draw
+
+After validating all participants, the application performs a **Fisher–Yates Shuffle**, ensuring an unbiased and statistically uniform random selection of the winner and backup winners.
+
+### 4. Audit Report
+
+Once the draw is completed, the application generates a report containing:
+
+- Draw date and time.
+- Random seed used.
+- Complete list of valid participants.
+- Winner.
+- Backup winners.
+
+This makes the entire process transparent and verifiable.
+
+---
+
+## 🛠️ Technologies
 
 ### Frontend
 
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
+- Vanilla JavaScript
 
-### Procesamiento de archivos
+### File Processing
 
 - SheetJS
 
-### Extracción de datos
+### Data Extraction
 
 - Python
 - BeautifulSoup
 
-### Algoritmos
+### Algorithms
 
-- Fisher-Yates Shuffle
-
----
-
-## 📊 Caso de uso real
-
-Este proyecto fue desarrollado para realizar un sorteo de **Caserito Bakery**, un emprendimiento de galletas artesanales.
-
-### Resultados
-
-- 💬 182 comentarios procesados.
-- ✅ 19 participaciones válidas luego de aplicar las reglas del sorteo.
-- 🏆 1 ganador + 2 suplentes seleccionados.
-- 📄 Registro auditable generado automáticamente.
+- Fisher–Yates Shuffle
 
 ---
 
-## 📚 Aprendizajes
+## 📊 Real-World Use Case
 
-Durante el desarrollo de este proyecto trabajé en:
+This application was developed and used for an actual Instagram giveaway organized by **Caserito Bakery**, a handmade cookie business.
 
-- Limpieza y validación de datos.
-- Automatización de reglas de negocio.
-- Procesamiento de archivos CSV y Excel.
-- Manipulación del DOM y procesamiento de datos con JavaScript.
-- Extracción de información mediante Python y BeautifulSoup.
-- Implementación de algoritmos de aleatoriedad.
-- Diseño de una aplicación completamente funcional sin backend.
+### Results
+
+- 💬 182 comments processed.
+- ✅ 19 valid entries after applying the giveaway rules.
+- 🏆 1 winner and 2 backup winners selected.
+- 📄 Audit report automatically generated.
 
 ---
 
-## 🎯 Objetivo
+## 📚 What I Learned
 
-El objetivo principal fue construir una herramienta que permitiera realizar sorteos de Instagram de manera **transparente, verificable y sin restricciones arbitrarias**, ofreciendo una solución real a un problema encontrado durante la organización de un sorteo.
+During this project I worked on:
+
+- Data cleaning and validation.
+- Business rule implementation.
+- CSV and Excel file processing.
+- Client-side data manipulation with JavaScript.
+- HTML parsing using Python and BeautifulSoup.
+- Randomization algorithms.
+- Building a complete web application without a backend.
+
+---
+
+## 🎯 Project Goal
+
+The goal of this project was to build a tool capable of running **transparent, fair, and verifiable Instagram giveaways** without the arbitrary limitations imposed by existing solutions.
+
+By combining automated validation, unbiased random selection, and an audit trail, the application ensures that every eligible participant has an equal chance of winning.
